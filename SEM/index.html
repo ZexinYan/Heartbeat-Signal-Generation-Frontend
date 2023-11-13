@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat and Record Webpage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #1b1b32;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+        }
+        h2{
+            text-align: center;
+        }
+
+        p{
+            text-align: center;
+            cursor: pointer;
+        }
+        main {
+            display: flex;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .record-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+        }
+
+        .chat-section {
+            flex: 2;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .upload-input {
+            margin-bottom: 10px;
+        }
+
+        .download-button {
+            display: none;
+            margin:20px auto;
+            background-color: #1b1b32;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        Heartbeat Generation Platform
+    </header>
+
+    <main>
+        <section class="record-section">
+            <h2>Generated Records</h2>
+            <p>2023-11-11.csv</p>
+            <p>2023-11-10.csv</p>
+            <p>2023-11-09.csv</p>
+            <!-- Your record content goes here -->
+        </section>
+
+        <section class="chat-section">
+            <h2>Heartbeat Generation</h2>
+
+            <div class="upload-container">
+                <input type="file" id="fileInput" class="upload-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                <button onclick="processFile()">Upload CSV/Excel File</button>
+            </div>
+
+            <canvas id="outputCanvas" width="400" height="200"></canvas>
+            <button id="downloadButton" class="download-button" onclick="downloadImage()">Download Picture</button>
+
+        </section>
+    </main>
+
+    <script>
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const downloadButton = document.getElementById('downloadButton');
+            const canvas = document.getElementById('outputCanvas');
+            const context = canvas.getContext('2d');
+
+            const file = fileInput.files[0];
+            if (file) {
+                if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+                    file.type === 'application/vnd.ms-excel' ||
+                    file.name.endsWith('.csv')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const content = e.target.result;
+
+                        // Process the CSV/Excel file content
+                        Papa.parse(content, {
+                            complete: function (results) {
+                                alert('Parsed CSV/Excel Data:', results);
+
+                                // Generate a picture for download
+                                drawSampleImage(context);
+                                downloadButton.style.display = 'block';
+                            },
+                            header: true, // Assuming the first row is the header
+                        });
+                    };
+
+                    reader.readAsText(file);
+                } else {
+                    alert('Please select a valid .csv or Excel file.');
+                }
+            } else {
+                alert('Please select a .csv or Excel file to upload.');
+            }
+        }
+
+        function drawSampleImage(context) {
+            context.fillStyle = '#1b1b32';
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+            context.font = '20px Arial';
+            context.fillStyle = '#fff';
+            context.textAlign = 'center';
+            context.fillText('Generated Picture', context.canvas.width / 2, context.canvas.height / 2);
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('outputCanvas');
+            const downloadButton = document.getElementById('downloadButton');
+
+            // Simulate generating an image (you can replace this with your actual image generation logic)
+            const imageData = canvas.toDataURL('image/png');
+
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = imageData;
+            link.download = 'output.png';
+
+            // Trigger a click on the link to start the download
+            link.click();
+
+            // Clean up
+            downloadButton.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
